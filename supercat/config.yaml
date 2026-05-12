@@ -1,0 +1,4 @@
+service: supercat
+inference_endpoint: http://inference.supercat
+model: qwen3-30b:32k
+api_key_env: INFERENCE_SUPERCAT_API_KEY

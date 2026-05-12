@@ -1,0 +1,15 @@
+{
+  "conversationId": "Desktop-default-9lzdub",
+  "projectPath": "/home/chainbro/Desktop",
+  "gitBranch": "default",
+  "currentPhase": "explore",
+  "planFilePath": "/home/chainbro/Desktop/.vibe/development-plan-default.md",
+  "workflowName": "epcc",
+  "requireReviewsBeforePhaseTransition": false,
+  "createdAt": "2026-05-12T08:21:29.836Z",
+  "updatedAt": "2026-05-12T08:21:29.844Z",
+  "sessionMetadata": {
+    "referenceId": "ses_1e4b9de98ffeGsvqHbExxzpVQH",
+    "createdAt": "2026-05-12T08:20:41.477Z"
+  }
+}

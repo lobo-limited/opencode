@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/home/chainbro/Desktop/logs/.c4e6388b0313c7dbe66f19428064a1808d24f6bd-audit.json",
+    "files": [
+        {
+            "date": 1778573966054,
+            "name": "/home/chainbro/Desktop/logs/mcp-puppeteer-2026-05-12.log",
+            "hash": "5f4889c986590925639f97a03010063653f1b32ea6430870e3b6c34f9acd20c8"
+        }
+    ],
+    "hashType": "sha256"
+}
