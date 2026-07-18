@@ -65,5 +65,23 @@ Standardize and validate inference service configurations for the fleet's OpenCo
 - [x] Final state: Everything is ready for PR — schema, validator, registry, provider config, and deploy docs are coherent and cross-reference correctly.
 - [x] Git: Committed 6 files (406 insertions) as `7917542` and pushed to `feat/opencode-inference-deployment` on origin.
 
+## Saba CLI Launcher
+### Tasks
+- [x] Create `saba` script — fleet-native coding assistant launcher
+- [x] Fix saba-shim long-context routing (`SABA_LONG_CTX_URL` → vLLM at 8500)
+- [x] Test full chain: claude binary → SSH tunnel → saba-shim → vLLM → cortejo:latest
+
+### Completed
+- [x] Created `~/.local/bin/saba` — shell script that sets `ANTHROPIC_BASE_URL` and `ANTHROPIC_API_KEY` to route the `claude` binary through saba-shim on supercat
+- [x] Fixed saba-shim env: added `SABA_LONG_CTX_URL=http://127.0.0.1:8500/v1/chat/completions` (was defaulting to port 8099 which isn't running)
+- [x] Tested: `saba "say hello"` returns Saba persona response from cortejo:latest on supercat vLLM
+- [x] Commands: `saba` (TUI), `saba "prompt"` (one-shot), `saba status`, `saba models`
+- [x] Auth bypass: `ANTHROPIC_API_KEY=local` + `ANTHROPIC_BASE_URL` pointing to saba-shim satisfies claude binary's auth check
+
+### Key Decisions
+- **Engine choice**: Uses `claude` binary as TUI frontend — provides Claude Code UX while routing through saba-shim to local vLLM. Alternative was opencode TUI, but 32k context limit causes system prompt overflow.
+- **Shim fix**: `SABA_LONG_CTX_URL` env var was missing, causing shim to try port 8099. Added explicit URL pointing to vLLM at 8500.
+- **No auth cloud calls**: `ANTHROPIC_API_KEY=local` prevents claude binary from contacting Anthropic servers. All traffic routes through local saba-shim.
+
 ---
 *This plan is maintained by the LLM. Tool responses provide guidance on which section to focus on and what tasks to work on.*
