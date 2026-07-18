@@ -56,12 +56,14 @@ Standardize and validate inference service configurations for the fleet's OpenCo
 - [x] Code cleanup — verify no debug output, TODOs, or experimental code remains
 - [x] Documentation review — ensure docs reflect final implementation state
 - [x] Final validation — run config validation suite to confirm nothing broke
+- [x] Commit and push changes to remote
 
 ### Completed
 - [x] Cleanup: No debug statements, TODOs, or experimental code found in new files. Config YAMLs are minimal and clean.
 - [x] Documentation: DEPLOY.md, opencode.fleet.json, and services.json all match the actual config structure. Plan file updated with full task completion records.
 - [x] Validation: `python3 -c jsonschema.validate` confirmed all 3 configs pass the schema. `scripts/validate-configs.sh` also passes for all configs.
 - [x] Final state: Everything is ready for PR — schema, validator, registry, provider config, and deploy docs are coherent and cross-reference correctly.
+- [x] Git: Committed 6 files (406 insertions) as `7917542` and pushed to `feat/opencode-inference-deployment` on origin.
 
 ---
 *This plan is maintained by the LLM. Tool responses provide guidance on which section to focus on and what tasks to work on.*
