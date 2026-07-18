@@ -1,0 +1,36 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "comment": "OpenCode provider configuration for the self-hosted fleet inference endpoints. Copy relevant sections to your local opencode.json or project-level opencode.json.",
+  "model": "fleet/qwen3-30b-32k",
+  "providers": {
+    "fleet": {
+      "name": "Self-Hosted Fleet (vLLM)",
+      "env": [
+        "INFERENCE_SUPERCAT_API_KEY",
+        "INFERENCE_TIGERKING_API_KEY",
+        "INFERENCE_WHISKERHEAD_API_KEY"
+      ],
+      "package": "@opencode-ai/ai/providers/openai-compatible",
+      "settings": {
+        "baseURL": "http://inference.supercat"
+      },
+      "headers": {},
+      "body": {},
+      "models": {
+        "qwen3-30b-32k": {
+          "name": "Qwen3-30B (32k context)",
+          "modelID": "qwen3-30b:32k",
+          "capabilities": {
+            "tools": true,
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "limit": {
+            "context": 32768,
+            "output": 8192
+          }
+        }
+      }
+    }
+  }
+}

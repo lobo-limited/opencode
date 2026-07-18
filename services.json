@@ -1,0 +1,28 @@
+{
+  "$schema": "./inference-config.schema.json",
+  "comment": "Aggregated registry of inference services for the OpenCode fleet. Generated from individual */config.yaml files.",
+  "generated": "2026-07-18",
+  "services": [
+    {
+      "service": "supercat",
+      "inference_endpoint": "http://inference.supercat",
+      "model": "qwen3-30b:32k",
+      "api_key_env": "INFERENCE_SUPERCAT_API_KEY",
+      "description": "Fleet inference hub — NVIDIA GB10 Grace-Blackwell, vLLM in Docker. Primary chat + agent inference."
+    },
+    {
+      "service": "tigerking",
+      "inference_endpoint": "http://inference.tigerking",
+      "model": "qwen3-30b:32k",
+      "api_key_env": "INFERENCE_TIGERKING_API_KEY",
+      "description": "Dual-GPU fleet node (RTX 6000 Ada + RTX 3080 Ti), native vLLM + LiteLLM. Multi-model endpoint."
+    },
+    {
+      "service": "whiskerhead",
+      "inference_endpoint": "http://inference.whiskerhead",
+      "model": "qwen3-30b:32k",
+      "api_key_env": "INFERENCE_WHISKERHEAD_API_KEY",
+      "description": "Third fleet inference node. Standard qwen3-30b:32k endpoint."
+    }
+  ]
+}
