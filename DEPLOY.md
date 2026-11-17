@@ -5,11 +5,11 @@ This repository defines the standardized inference service configuration for con
 
 ## Fleet Nodes
 
-| Service      | Inference Endpoint           | Model        | API Key Env                   |
-| ------------ | ---------------------------- | ------------ | ----------------------------- |
-| supercat     | `http://inference.supercat`  | qwen3-30b:32k | `INFERENCE_SUPERCAT_API_KEY`  |
-| tigerking    | `http://inference.tigerking` | qwen3-30b:32k | `INFERENCE_TIGERKING_API_KEY` |
-| whiskerhead  | `http://inference.whiskerhead` | qwen3-30b:32k | `INFERENCE_WHISKERHEAD_API_KEY` |
+| Service      | Inference Endpoint           | Model          | API Key Env                   |
+| ------------ | ---------------------------- | -------------- | ----------------------------- |
+| supercat     | `http://inference.supercat`  | cortejo:latest | `INFERENCE_SUPERCAT_API_KEY`  |
+| tigerking    | `http://inference.tigerking` | bge-m3         | `INFERENCE_TIGERKING_API_KEY` |
+| whiskerhead  | `http://inference.whiskerhead` | cortejo:latest | `INFERENCE_WHISKERHEAD_API_KEY` |
 
 ## Configuration Format
 
@@ -50,8 +50,16 @@ package. An example config is in [`opencode.fleet.json`](./opencode.fleet.json).
    ```bash
    opencode
    /models
-   # Select "fleet/qwen3-30b-32k"
+   # Select "fleet/cortejo:latest" (Saba Brain) or "fleet/saba-coder" (Saba Coder)
    ```
+
+### Fleet Model Inventory (2026-08-13)
+
+Verified against the gato-fleet proxy (`supercat:8500`):
+
+- **supercat** (chat/agent): `cortejo:latest` (Ornith-9B, 64k ctx), `saba-agent` (alias of the active brain), `saba-coder` (Qwen3-Coder-30B), `cortejo-9b-v1` (LoRA), `gemma4-12b`, `qwythos-9b`, `qwen3-8b-abliterated`, `huihui-qwen3-4b-abliterated`
+- **tigerking** (embed/rerank/voice): `bge-m3`, `bge-reranker-v2-m3`, `ctx-holder`, `kokoro`, `voice-loop`, `whisper-base`
+- **whiskerhead**: not currently advertising models via the proxy — retained for compatibility
 
 ### Per-Node Configuration
 

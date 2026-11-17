@@ -89,7 +89,6 @@ try:
     jsonschema.validate(instance=data, schema=schema)
     sys.exit(0)
 except jsonschema.exceptions.ValidationError as e:
-    print(f'  {e.message}')
     sys.exit(1)
 "; then
             pass "Validates against schema"

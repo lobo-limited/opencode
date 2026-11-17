@@ -1,0 +1,13 @@
+# Personal / tax documents — not part of the fleet-inference deployment feature
+Statement For 25 Returns.pdf
+btax25_letters/
+btax25pdf
+jay_brown_response.docx
+jay_brown_response.pdf
+
+# Operational logs / command dumps
+logs/mcp-puppeteer-2026-08-*.log*
+nvidia-smi
+
+# Tool working dir
+.cortexkit/
