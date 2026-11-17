@@ -6,9 +6,29 @@
     "auditLog": "/home/chainbro/Desktop/logs/.c4e6388b0313c7dbe66f19428064a1808d24f6bd-audit.json",
     "files": [
         {
-            "date": 1778573966054,
-            "name": "/home/chainbro/Desktop/logs/mcp-puppeteer-2026-05-12.log",
-            "hash": "5f4889c986590925639f97a03010063653f1b32ea6430870e3b6c34f9acd20c8"
+            "date": 1785912076794,
+            "name": "/home/chainbro/Desktop/logs/mcp-puppeteer-2026-08-05.log",
+            "hash": "b3ab60cd34c91218cea23a686be58eed5dbdc8e134c10cee81e2da18f36c0f05"
+        },
+        {
+            "date": 1786056916298,
+            "name": "/home/chainbro/Desktop/logs/mcp-puppeteer-2026-08-06.log",
+            "hash": "b48947a29d172a6fb50c3c85ebbb30744b98a3ccd66a36f3d119b569abd57fa2"
+        },
+        {
+            "date": 1786061862410,
+            "name": "/home/chainbro/Desktop/logs/mcp-puppeteer-2026-08-07.log",
+            "hash": "685d559c7765805aa56cbd5a5477ff0b6b10c15f634f21fbcc9e4533f94692ce"
+        },
+        {
+            "date": 1786408208852,
+            "name": "/home/chainbro/Desktop/logs/mcp-puppeteer-2026-08-11.log",
+            "hash": "07cc961f9737bd8ba2ecd0d2fb2cd60aa7e971f4cbfc5a49a6004e30a2fbf709"
+        },
+        {
+            "date": 1786600166288,
+            "name": "/home/chainbro/Desktop/logs/mcp-puppeteer-2026-08-13.log",
+            "hash": "d1c87098dd6ef449d3d60743a1e63296cf8028d33dc6f0b26165d25efd1fe0bb"
         }
     ],
     "hashType": "sha256"

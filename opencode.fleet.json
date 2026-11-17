@@ -1,0 +1,78 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "comment": "OpenCode provider configuration for the self-hosted fleet inference endpoints. Models verified against the gato-fleet proxy (supercat :8500) on 2026-08-13.",
+  "model": "fleet/cortejo:latest",
+  "providers": {
+    "fleet": {
+      "name": "Self-Hosted Fleet (vLLM)",
+      "env": [
+        "INFERENCE_SUPERCAT_API_KEY",
+        "INFERENCE_TIGERKING_API_KEY",
+        "INFERENCE_WHISKERHEAD_API_KEY"
+      ],
+      "package": "@opencode-ai/ai/providers/openai-compatible",
+      "settings": {
+        "baseURL": "http://inference.supercat"
+      },
+      "headers": {},
+      "body": {},
+      "models": {
+        "cortejo:latest": {
+          "name": "Saba Brain (Ornith-9B)",
+          "modelID": "cortejo:latest",
+          "canonicalModelName": "maci0/Ornith-1.0-9B-abliterated-NVFP4",
+          "capabilities": {
+            "tools": true,
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "limit": {
+            "context": 65536,
+            "output": 8192
+          }
+        },
+        "saba-agent": {
+          "name": "Saba Agent (Ornith-9B alias)",
+          "modelID": "saba-agent",
+          "canonicalModelName": "maci0/Ornith-1.0-9B-abliterated-NVFP4",
+          "capabilities": {
+            "tools": true,
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "limit": {
+            "context": 65536,
+            "output": 8192
+          }
+        },
+        "saba-coder": {
+          "name": "Saba Coder (Qwen3-Coder-30B)",
+          "modelID": "saba-coder",
+          "canonicalModelName": "Qwen/Qwen3-Coder-30B-A3B-Instruct-NVFP4",
+          "capabilities": {
+            "tools": true,
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "limit": {
+            "context": 32768,
+            "output": 8192
+          }
+        },
+        "cortejo-9b-v1": {
+          "name": "Cortejo 9B v1 (LoRA)",
+          "modelID": "cortejo-9b-v1",
+          "capabilities": {
+            "tools": true,
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "limit": {
+            "context": 65536,
+            "output": 8192
+          }
+        }
+      }
+    }
+  }
+}
