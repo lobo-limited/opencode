@@ -30,9 +30,9 @@
       "type": "string",
       "description": "Default model identifier served by this endpoint",
       "examples": [
-        "qwen3-30b:32k",
         "cortejo:latest",
-        "saba-agent"
+        "saba-agent",
+        "bge-m3"
       ]
     },
     "api_key_env": {

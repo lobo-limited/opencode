@@ -4,7 +4,7 @@
 *Workflow: [epcc](https://codemcp.github.io/workflows/workflows/epcc)*
 
 ## Goal
-Standardize and validate inference service configurations for the fleet's OpenCode deployment — defining how OpenCode connects to self-hosted vLLM endpoints on supercat, tigerking, and whiskerhead nodes using the qwen3-30b:32k model.
+Standardize and validate inference service configurations for the fleet's OpenCode deployment — defining how OpenCode connects to self-hosted vLLM endpoints on supercat, tigerking, and whiskerhead nodes using the live model inventory verified against the gato-fleet proxy (supercat :8500).
 
 ## Key Decisions
 - **Opencode CLI update (2026-08-05)**: Updated the opencode npm package in ~/.opencode to latest version (1.18.13) via npm update.
@@ -12,6 +12,7 @@ Standardize and validate inference service configurations for the fleet's OpenCo
 - **Client-side optimizations (2026-08-11)**: Applied `ControlPersist` 30m to `~/.ssh/config`, implemented a 300s-TTL model list cache in `saba-local` to reduce gateway hits, and added a `saba.env` lock file to pin routing to the supercat gateway.
 - **Network/Firewall (2026-08-11)**: Whitelisted `192.168.6.142` in `fleet4` set on supercat. Switched node to static IP via `nmcli` to ensure whitelist persistence.
 - **vLLM Optimizations (2026-08-05)**: Standardized `vllm-text` with `fp8_e4m3` KV cache, adjusted `vllm-ocr` utilization to 0.10, and applied exact `--kv-cache-memory=14546836194` budget to `vllm-coder`.
+- **Commit-Phase doc correction (2026-11-18)**: `inference-config.schema.json` model examples no longer advertise the retired `qwen3-30b:32k`; they now list the verified live models (`cortejo:latest`, `saba-agent`, `bge-m3`). Plan Goal de-scoped from a single stale model to the gato-fleet-verified inventory. Rationale: the 2026-08-13 decision makes the proxy authoritative, so shipping docs must not contradict it.
 
 ## Notes
 *Additional context and observations*
@@ -73,6 +74,7 @@ Pulled latest fleet components from `supercat` to this machine (file-level rsync
 - **Documentation Finalized (2026-08-11)**: Confirmed all configs match the `inference-config.schema.json` and are correctly represented in `services.json` and `opencode.fleet.json`.
 - **Validation Complete (2026-08-11)**: Ran `scripts/validate-configs.sh` and confirmed 100% success for all fleet nodes.
 - [x] Git: Committed 6 files (406 insertions) as `7917542` and pushed to `feat/opencode-inference-deployment` on origin.
+- **Commit-Phase re-verification (2026-11-18)**: Re-ran all four Commit tasks against the final state. (1) Cleanup: no debug output, TODOs, or experimental code in any deployment artifact — the only `TODO`/`print` matches are the words inside this plan file. (2) Documentation: found and fixed the stale `qwen3-30b:32k` example in `inference-config.schema.json`; `DEPLOY.md`, `services.json`, and `opencode.fleet.json` otherwise match the three minimal config YAMLs and the 2026-08-13 inventory. (3) Validation: `scripts/validate-configs.sh` passes 3/3 configs against the schema; all three JSON artifacts parse cleanly. (4) Git: branch tracked in sync with `origin/feat/opencode-inference-deployment`; only log files (`logs/`) remain dirty and are intentionally excluded from feature commits.
 
 ## Saba CLI Launcher
 ### Tasks
