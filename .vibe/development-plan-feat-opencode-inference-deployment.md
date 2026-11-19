@@ -12,7 +12,8 @@ Standardize and validate inference service configurations for the fleet's OpenCo
 - **Client-side optimizations (2026-08-11)**: Applied `ControlPersist` 30m to `~/.ssh/config`, implemented a 300s-TTL model list cache in `saba-local` to reduce gateway hits, and added a `saba.env` lock file to pin routing to the supercat gateway.
 - **Network/Firewall (2026-08-11)**: Whitelisted `192.168.6.142` in `fleet4` set on supercat. Switched node to static IP via `nmcli` to ensure whitelist persistence.
 - **vLLM Optimizations (2026-08-05)**: Standardized `vllm-text` with `fp8_e4m3` KV cache, adjusted `vllm-ocr` utilization to 0.10, and applied exact `--kv-cache-memory=14546836194` budget to `vllm-coder`.
-- **Commit-Phase doc correction (2026-11-18)**: `inference-config.schema.json` model examples no longer advertise the retired `qwen3-30b:32k`; they now list the verified live models (`cortejo:latest`, `saba-agent`, `bge-m3`). Plan Goal de-scoped from a single stale model to the gato-fleet-verified inventory. Rationale: the 2026-08-13 decision makes the proxy authoritative, so shipping docs must not contradict it.
+- **Commit-Phase doc correction (2026-11-18)**: `inference-config.schema.json` model examples no longer advertise the retired `qwen3-30b:32k`; they now list the verified live models (`cortejo:latest`, `cortejo:latest`, `bge-m3`). Plan Goal de-scoped from a single stale model to the gato-fleet-verified inventory. Rationale: the 2026-08-13 decision makes the proxy authoritative, so shipping docs must not contradict it.
+- **Structural gut check (2026-11-18)**: Static-only audit (no live probes) of the saba command chain found three structural breaks. (1) `~/.local/bin/saba` builds a tunnel to `127.0.0.1:18710` and exports `SABA_SHIM_BASE`, but `saba-local` uses that URL only for health checks — `run_llm` execs `llm -m saba-fleet`, and the saved endpoint is hardwired to `http://127.0.0.1:8710/v1`, so the tunnel never carries inference traffic. (2) `~/.ssh/config` resolves `supercat` to the retired `100.113.223.111` (live node is `100.115.46.106`), so tunnel setup always fails after ConnectTimeout and the launcher always runs its local-shim fallback. (3) The Saba CLI Launcher section below still documents a `claude`-binary + `ANTHROPIC_API_KEY=local` chain; the code actually uses `llm` and explicitly unsets all `ANTHROPIC_*` vars. Model identity also drifted: the working request is `llama-3.1-8b-instruct` (shim pass-through → proxy `:8500`), while `saba.env` pins `SABA_DEFAULT_MODEL=cortejo-9b` (registry alias → direct `:8012`) and `opencode.fleet.json` still advertises the retired `saba-agent`. Desktop repo artifacts remain internally valid (3/3 configs pass) but their 2026-08-13 inventory is stale relative to the 2026-11 fleet relocation. No files were changed except this decision log.
 
 ## Notes
 *Additional context and observations*
@@ -131,8 +132,8 @@ Pulled latest fleet components from `supercat` to this machine (file-level rsync
 - [x] Re-run validation suite
 
 ### Completed
-- [x] Inventory verified live: supercat serves chat (`cortejo:latest`, `saba-agent`, `cortejo-9b-v1` loaded; `saba-coder` :8019 configured-asleep); tigerking serves embed/voice (`bge-m3`, `bge-reranker-v2-m3`, `ctx-holder`, `kokoro`, `voice-loop`, `whisper-base`); whiskerhead is NOT in the live proxy (0 matches).
-- [x] `opencode.fleet.json` now lists `cortejo:latest`, `saba-agent`, `saba-coder`, `cortejo-9b-v1` with verified context limits (64k/32k).
+- [x] Inventory verified live: supercat serves chat (`cortejo:latest`, `cortejo-9b-v1` loaded; `saba-coder` :8019 configured-asleep); tigerking serves embed/voice (`bge-m3`, `bge-reranker-v2-m3`, `ctx-holder`, `kokoro`, `voice-loop`, `whisper-base`); whiskerhead is NOT in the live proxy (0 matches).
+- [x] `opencode.fleet.json` now lists `cortejo:latest`, `cortejo:latest`, `saba-coder`, `cortejo-9b-v1` with verified context limits (64k/32k).
 - [x] `supercat/config.yaml` → `cortejo:latest`; `tigerking/config.yaml` → `bge-m3`; `whiskerhead/config.yaml` → `cortejo:latest` (inactive node, retained for compatibility).
 - [x] `services.json` regenerated with 2026-08-13 inventory + per-node descriptions; `DEPLOY.md` table + fleet model inventory section updated.
 - [x] `scripts/validate-configs.sh` passes all 3 configs; both JSON artifacts valid.
@@ -141,6 +142,53 @@ Pulled latest fleet components from `supercat` to this machine (file-level rsync
 - **Authoritative source**: The gato-fleet proxy (`supercat:8500`, `~/gato-fleet/proxy/`) is the source of truth for fleet model inventory, not the older `qwen3-30b:32k` naming — the fleet no longer serves that model.
 - **whiskerhead**: Not advertising in the live proxy — entry retained (model set to shared `cortejo:latest`) rather than deleted, to preserve schema compatibility.
 - **tigerking primary**: `bge-m3` reflects the always-hot embed/rerank role; chat is supercat-centric in the current deployment.
+
+## Fleet Plumbing Audit vs USB Kit (2026-11-18)
+*Objective: verify the live fleet plumbing (WireGuard mesh → gato-fleet proxy auth → model roster → ledgers) against the canonical CRAYOLA USB `fleet-entry-kit`. USB wins on divergence (README §6); the ext4 mirror `~/fleet-entry-kit/` is a working copy.*
+
+### Tasks
+- [x] Wave 1A — WireGuard mesh layer: live `wg0` on strays vs kit `wg-roaming.conf` + ledger addresses; peer pubkey/endpoint drift; off-LAN reachability of 10.10.10.2/.3
+- [x] Wave 1B — Proxy auth + model layer: supercat `FLEET_PROXY_API_KEYS` vs `AUTH_LEDGER.md`/`keys.md`; strays credential acceptance; served model names (incl. the `saba-agent` alias question)
+- [x] Wave 1C — Ledger/mirror/repo consistency: USB kit vs ext4 mirror vs Desktop repo artifacts (`opencode.fleet.json`, `inference-config.schema.json`, `services.json`, 3× `config.yaml`, `DEPLOY.md`)
+- [x] Wave 2 — Holistic integration review across the three reports (cross-layer drift, no duplicated work)
+- [x] Wave 3 — Coordinated fix commit on the integration branch + push + PR
+- [x] Final validation — re-run `scripts/validate-configs.sh`; confirm every audit finding is either fixed or recorded as an accepted risk in Key Decisions
+
+### Completed
+- [x] **Dispatch was blocked, not skipped**: every `Task` spawn failed with `Model not found: fleet/saba-agent` — `~/.config/opencode/opencode.json` routed all five agents at a retired model id, and opencode resolves subagent models from the provider's *static* map rather than the proxy's live roster. The map was re-synced to the live roster; opencode caches config at startup, so the running session still cannot spawn subagents until it is restarted.
+- [x] **Live roster**: `GET :8500/v1/models` on supercat returns 17 ids — `cortejo`, `saba-agent`, `minicpm`, `qwythos`, `gemma4-12b`, `qwen3-coder-30b`, `qwen3-vl-8b`, `qwen3-vl-abliterated`, `qwen3-vl-thinking`, `qwen3-vl-ocr`, `qwen3.6-35b`, `glimmer-30b`, `nemo-lightning-30b`, `deepseek-ocr`, `ctx-holder`, `bge-m3`, `bge-reranker-v2-m3`.
+- [x] **`saba-agent` is live, not retired**: it is the brain alias the proxy rewrites onto the resident brain's port. The earlier cleanup that removed it from `opencode.fleet.json` was wrong, and it also left that file with an illegal trailing comma (invalid JSON). Both artifacts repaired.
+- [x] **Supercat SSH identity**: the `Host 100.*` rule in `~/.ssh/config` (`lrjhr` + `supercat_id_ed25519`) and the `supercat` alias (100.113.223.111) are both dead. The working identity is `lobo@100.115.46.106` with `~/.ssh/id_ed25519`.
+- [x] **Off-LAN**: strays sits off the fleet LAN (wifi 10.183.255.10/24); `wg0`'s peer endpoints are LAN addresses, so 10.10.10.2/.3 are unreachable from here. The kit's off-LAN endpoint rule (Tailscale `100.115.46.106:51820`) applies. The proxy is reachable over Tailscale `:8500`, and the local shim `:8710` answers 200.
+
+### Key Decisions
+- **Live truth beats both the kit and the repo**: the kit's `wg-roaming.conf` peer public key differs from the live `wg0` peer key by a few characters, and the kit's model roster disagrees with the repo's artifacts. Live endpoint state (`/v1/models`, `nvidia-smi`, `systemctl`) is the arbiter; the kit is updated to match, not the reverse.
+- **Secrets stay on the stick**: `keys.md` and `wg-roaming.conf` remain on the vfat USB (0644 by filesystem, not by choice); the ext4 mirror keeps 0600. Nothing was copied off the stick.
+- **No generation probes**: pool models were touched only with `GET /v1/models` — generation probes are what drive swap storms.
+
+## Fleet Single-Brain Guard (2026-11-18)
+*Objective: build a subagent into the fleet that repairs model-swap plumbing and guarantees that at most one >=20 GiB model is resident and answering prompts at a time.*
+
+### Tasks
+- [x] Measure the live resident set and classify engines by VRAM (nvidia-smi + unit MainPID ancestry)
+- [x] Audit `Conflicts=` coverage across every engine unit, including the legacy `vllm-*` duplicates
+- [x] Close the systemd holes (14 heavy-capable units now carry a mutual 13-way `Conflicts=` set, with `*.bak-conflicts-2026-11-18` backups)
+- [x] Write `scripts/verify-fleet-serving.py` — ground-truth verifier for the invariant (heavy count, conflict coverage, duplicate ports, roster/backend coherence, brain-alias targets, swapd state)
+- [x] Write the `fleet-swap-guard` opencode subagent (`.opencode/agent/fleet-swap-guard.md`) with the repair protocol and hard rules
+- [x] Install the subagent on `strays`, `supercat-1` and `tigerking`; install the verifier on `supercat-1`
+- [x] Verify: verifier exits 0 — exactly one heavy engine (cortejo, 31,463 MiB), two small co-tenants (OCR 15,665 MiB, minicpm 2,317 MiB), proxy 17 ids, brain aliases on `:8012`, swapd state consistent
+
+### Completed
+- [x] The verifier's baseline found **14 critical** `Conflicts=` holes: `qwythos-vllm`, `gemma4-12b-vllm` and all five legacy units (`vllm-cortejo`, `vllm-coder`, `vllm-text`, `vllm-qwythos`, `vllm-gemma4`) declared none, so a manual start could co-reside a second large model with the brain. `vllm-text` is the worst case — it serves the cortejo weights on `:8010`.
+- [x] All 14 heavy-capable units now conflict with each other; `systemctl daemon-reload` applied with no restart and no disruption (the brain stayed resident throughout).
+- [x] Subagent installed fleet-wide; verifier deployed to `~/fleet-training/verify-fleet-serving.py` and re-run green.
+
+### Key Decisions
+- **20 GiB is measured, not declared**: the verifier reads actual VRAM from `nvidia-smi` (20480 MiB threshold) instead of trusting a unit's advertised model size, so the class stays correct when a pool model's footprint changes.
+- **Enforce at the systemd layer, verify at the process layer**: `Conflicts=` makes "one heavy engine" deterministic (starting a second stops the first, closing the start race); the verifier proves the end state; the subagent drives both.
+- **Small co-tenants stay conflict-free**: `minicpm-vllm`, `vllm-ocr`, `vllm-embed`, `vllm-rerank` sit below the threshold and may co-reside with the brain.
+- **Never prove the invariant by starting a second engine**: with mutual `Conflicts=`, a start test would stop the brain and could leave the fleet brainless if the candidate engine failed to load. Verification is static (`Conflicts=` contents) plus process-level measurement.
+- **Residual accepted**: `qwen3-vl-abliterated` / `qwen3-vl-thinking` (`:8022`) are advertised by the proxy but have no engine and no swap-pool owner; tigerking requests them continuously, producing 503s. The repair means either putting `vllm-vl` back under the scheduler or stopping tigerking's request loop — a cross-node behaviour change, left for an explicit decision.
 
 ---
 *This plan is maintained by the LLM. Tool responses provide guidance on which section to focus on and what tasks to work on.*
